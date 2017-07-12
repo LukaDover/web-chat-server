@@ -80,13 +80,6 @@ class Client:
         if choice == 'yes':
             self.current_conversation = cid
 
-    def message_receiver(self):
-        while True:
-            code, data = MessageHandler.receive_message(self.socket)
-            Client._message_receiver_event.set()  # Interrupt main loop
-            self.thread_actions[int(code[0])](data)
-            Client._message_receiver_event.clear()  # Continue with main loop
-
     def enter_conversation(self):
         if not self.conversation_ids:
             print('You have no active conversations!')
@@ -108,16 +101,11 @@ class Client:
         self.enter_conversation()
 
     def switch_conversation(self):
-        print('Your conversations:\n{}'.format('\n'.join(self.conversation_ids)))
-        while True:
-            cid = input('Enter Conversation ID: ')
-            if cid not in self.conversation_ids:
-                continue
-            self.current_conversation = cid
-            break
-
-    def send_message(self, code, data=None):
-        MessageHandler.send_message('{}:{}'.format(code, data), self.socket)
+        print('Your conversations:\n{}'.format('\n'.join(self.conversation_ids)))    
+        cid = input('Enter Conversation ID: ')
+        if cid not in self.conversation_ids:
+            return
+        self.current_conversation = cid
 
     def exit(self):
         print('Sending exit message to server')
@@ -126,7 +114,17 @@ class Client:
         self.socket.close()
         print('Socket closed')
         sys.exit(0)
-
+        
+    def send_message(self, code, data=None):
+        MessageHandler.send_message('{}:{}'.format(code, data), self.socket)
+        
+    def message_receiver(self):
+        while True:
+            code, data = MessageHandler.receive_message(self.socket)
+            Client._message_receiver_event.set()  # Interrupt main loop
+            self.thread_actions[int(code[0])](data)
+            Client._message_receiver_event.clear()  # Continue with main loop
+            
     def run(self):
         print(Client.options)
         self.login()
