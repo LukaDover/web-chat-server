@@ -76,7 +76,7 @@ class Client:
     def save_conversation_id(self, cid):
         self.conversation_ids.append(cid)
         print('Conversation with id {} is available.'.format(cid))
-        choice = Client.get_user_input('Enter conversation {}? [yes/no]: '.format(cid))
+        choice = input('Enter conversation {}? [yes/no]: '.format(cid))
         if choice == 'yes':
             self.current_conversation = cid
 
@@ -134,7 +134,7 @@ class Client:
             if Client._message_receiver_event.is_set():
                 continue
             try:
-                in_data = Client.get_user_input("{} > ".format(self.current_conversation))
+                in_data = input("{} > ".format(self.current_conversation))
                 if in_data.isdigit() and len(in_data) == 1:
                     self.user_actions[int(in_data[0])]()
                 else:
@@ -143,10 +143,6 @@ class Client:
             except KeyboardInterrupt:
                 self.exit()
                 sys.exit()
-
-    @staticmethod
-    def get_user_input(prompt):
-        return input(prompt)
 
 
 if __name__ == '__main__':
