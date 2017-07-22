@@ -14,10 +14,10 @@ class Server:
     def __init__(self, address, port):
         self.address = address
         self.port = port
-        self.socket = None  # Server has one socket that accepts connections
-        self.client_threads = {}  # thread: socket
+        self.socket = None              # Server has one socket that accepts connections
+        self.client_threads = {}        # thread: socket
         self.client_names = ['Public']
-        self.conversations = {}  # id: Conversation
+        self.conversations = {}         # id: Conversation
         self.context = None
 
     def exit(self, client_thread):
