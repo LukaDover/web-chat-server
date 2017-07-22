@@ -24,7 +24,7 @@ class MessageHandler:
         if message_length > 0:
             message = MessageHandler.receive_fixed_length_msg(socket, message_length)
             message = message.decode('utf-8')
-        return message.split(':')[0], ':'.join(message.split(':')[1:])
+        return message.split(':', maxsplit=1)
 
     @staticmethod
     def make_message(message):
