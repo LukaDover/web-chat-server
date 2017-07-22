@@ -45,7 +45,7 @@ class Client:
         Client._event.wait(5)
         if Client._event.is_set():
             self.logged_in = True
-            print('Successfully logged in.')
+            Client.information_print('Successfully logged in.')
         else:
             if input('Unable to login. Try again? [y/n]: ') == 'y':
                 self.login()
@@ -61,28 +61,28 @@ class Client:
         try:
             self.socket.connect((self.address, self.port))
         except socket.error as e:
-            print('Unable to connect to the server: {}'.format(e))
+            Client.information_print('Unable to connect to the server: {}'.format(e))
             if input("Try again? [y/n]") == 'y':
                 self.setup_socket()
             else:
                 sys.exit(1)
 
     def display_online_users(self, data):
-        print('\n'.join(user for user in eval(data)))
+        Client.message_print('\n'.join(user for user in eval(data)))
 
     def display_message(self, data):
-        print('{}'.format(data))
+        Client.message_print('{}'.format(data))
 
     def save_conversation_id(self, cid):
         self.conversation_ids.append(cid)
-        print('Conversation with id {} is available.'.format(cid))
+        Client.information_print('Conversation with id {} is available.'.format(cid))
         choice = input('Enter conversation {}? [yes/no]: '.format(cid))
         if choice == 'yes':
             self.current_conversation = cid
 
     def enter_conversation(self):
         if not self.conversation_ids:
-            print('You have no active conversations!')
+            Client.information_print('You have no active conversations!')
         else:
             self.switch_conversation()
 
@@ -101,18 +101,18 @@ class Client:
         self.enter_conversation()
 
     def switch_conversation(self):
-        print('Your conversations:\n{}'.format('\n'.join(self.conversation_ids)))    
+        Client.information_print('Your conversations:\n{}'.format('\n'.join(self.conversation_ids)))
         cid = input('Enter Conversation ID: ')
         if cid not in self.conversation_ids:
             return
         self.current_conversation = cid
 
     def exit(self):
-        print('Sending exit message to server')
+        Client.information_print('Sending exit message to server')
         self.send_message(Code.EXIT)
         time.sleep(1)
         self.socket.close()
-        print('Socket closed')
+        Client.information_print('Socket closed')
         sys.exit(0)
         
     def send_message(self, code, data=None):
@@ -124,9 +124,17 @@ class Client:
             Client._message_receiver_event.set()  # Interrupt main loop
             self.thread_actions[int(code[0])](data)
             Client._message_receiver_event.clear()  # Continue with main loop
+
+    @staticmethod
+    def information_print(info_message):
+        print(info_message)
+
+    @staticmethod
+    def message_print(message):
+        print(message)
             
     def run(self):
-        print(Client.options)
+        Client.information_print(Client.options)
         self.login()
         while True:
             if Client._message_receiver_event.is_set():
